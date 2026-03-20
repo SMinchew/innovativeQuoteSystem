@@ -19,6 +19,8 @@ function QuoteView() {
 
     const fetchQuote = async () => {
         try {
+            console.log('Fetching quote ID:', id);
+            console.log('Token:', localStorage.getItem('token'));
             const response = await api.get(`/api/quotes/${id}`);
             setQuote(response.data);
             setLines(response.data.lines || []);
@@ -26,6 +28,7 @@ function QuoteView() {
             const totalResponse = await api.get(`/api/quotes/${id}/total`);
             setTotal(totalResponse.data);
         } catch (err) {
+            console.error('Quote fetch error:', err.response?.status, err.response?.data);
             setError('Failed to load quote');
         }
         setLoading(false);

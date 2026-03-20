@@ -26,7 +26,6 @@ function Dashboard() {
 
     const deleteQuote = async (id) => {
         if (!window.confirm("Are you sure you want to permanently delete this quote?")) return;
-
         setActionLoading(id);
         try {
             await api.delete(`/api/quotes/${id}`);
@@ -88,7 +87,6 @@ function Dashboard() {
                     </button>
                 </div>
 
-                {/* Stats Summary */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Quotes</p>
@@ -137,14 +135,11 @@ function Dashboard() {
                                         <p className="text-xs text-gray-600 font-medium">
                                             {quote.createdAt ? new Date(quote.createdAt).toLocaleDateString() : 'N/A'}
                                         </p>
-                                        <p className="text-[10px] text-gray-400 italic">
-                                            {quote.createdAt ? new Date(quote.createdAt).toLocaleDateString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                                        </p>
                                     </td>
                                     <td className="px-6 py-4">
-                                            <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                                                {quote.createdBy || 'System'}
-                                            </span>
+                                        <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                                            {quote.createdBy || 'System'}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-4">
                                         {getStatusBadge(quote.status)}

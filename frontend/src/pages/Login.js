@@ -17,7 +17,7 @@ function Login() {
             });
             const token = response.data.token;
             localStorage.setItem('token', token);
-            window.location.href = '/dashboard';
+            navigate('/dashboard');  // changed from window.location.href
         } catch (err) {
             setError('Invalid username or password');
         }

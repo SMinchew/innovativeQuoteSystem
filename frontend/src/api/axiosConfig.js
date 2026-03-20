@@ -16,11 +16,10 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Handle 401 responses automatically
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401 || error.response?.status === 403) {
+        if (error.response?.status === 401) {
             localStorage.removeItem('token');
             window.location.href = '/login';
         }

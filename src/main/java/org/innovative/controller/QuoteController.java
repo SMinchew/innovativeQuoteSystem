@@ -78,6 +78,30 @@ public class QuoteController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Quote> getById(@PathVariable UUID id) {
+        return quoteRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/total")
+    public ResponseEntity<BigDecimal> getTotal(@PathVariable UUID id) {
+        return quoteRepository.findById(id).map(quote -> {
+            BigDecimal total = quote.getLines().stream()
+                    .map(line -> line.getLineTotal() != null ? line.getLineTotal() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            return ResponseEntity.ok(total);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        if (!quoteRepository.existsById(id)) return ResponseEntity.notFound().build();
+        quoteRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<Quote> updateStatus(@PathVariable UUID id, @RequestBody QuoteStatus status) {
         return quoteRepository.findById(id).map(quote -> {
