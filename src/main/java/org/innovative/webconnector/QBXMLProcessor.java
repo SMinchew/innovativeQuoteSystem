@@ -65,7 +65,8 @@ public class QBXMLProcessor {
             Document doc = builder.parse(new InputSource(new StringReader(xmlResponse)));
 
             // 1. Assemblies
-            NodeList assemblyItems = doc.getElementsByTagName("ItemInventoryAssemblyRet");
+            NodeList assemblyItems = doc.getElementsByTagName("ItemRet");
+            System.out.println("Found assembly items: " + assemblyItems.getLength());
             for (int i = 0; i < assemblyItems.getLength(); i++) {
                 parseAndSaveAssembly((Element) assemblyItems.item(i));
             }
@@ -98,35 +99,64 @@ public class QBXMLProcessor {
         currentProcessingQuoteId = null;
     }
 
+
     public String buildEstimateAddRequest(Quote quote) {
         StringBuilder xml = new StringBuilder();
-        xml.append("<?qbxml version=\"13.0\"?>");
+        xml.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+        xml.append("<?qbxml version=\"16.0\"?>");
         xml.append("<QBXML><QBXMLMsgsRq onError=\"stopOnError\">");
         xml.append("<EstimateAddRq requestID=\"101\">");
         xml.append("<EstimateAdd>");
 
         if (quote.getCustomer() != null && quote.getCustomer().getQbListId() != null) {
-            xml.append("<CustomerRef><ListID>").append(quote.getCustomer().getQbListId()).append("</ListID></CustomerRef>");
+            xml.append("<CustomerRef><ListID>")
+                    .append(quote.getCustomer().getQbListId())
+                    .append("</ListID></CustomerRef>");
         }
 
-        for (QuoteLine line : quote.getLines()) {
-            xml.append("<EstimateLineAdd>");
-            xml.append("<ItemRef><ListID>").append(line.getAssembly().getQbListId()).append("</ListID></ItemRef>");
-            xml.append("<Quantity>").append(line.getQuantity()).append("</Quantity>");
-            xml.append("<Rate>").append(line.getUnitPrice()).append("</Rate>");
-            xml.append("</EstimateLineAdd>");
+        if (quote.getLines() != null) {
+            for (QuoteLine line : quote.getLines()) {
+                if (line.getAssembly() != null && line.getAssembly().getQbListId() != null) {
+                    xml.append("<EstimateLineAdd>");
+                    xml.append("<ItemRef><ListID>")
+                            .append(line.getAssembly().getQbListId())
+                            .append("</ListID></ItemRef>");
+                    xml.append("<Quantity>").append(line.getQuantity()).append("</Quantity>");
+                    xml.append("<Rate>").append(line.getUnitPrice()).append("</Rate>");
+                    xml.append("</EstimateLineAdd>");
+                }
+            }
         }
 
         xml.append("</EstimateAdd></EstimateAddRq></QBXMLMsgsRq></QBXML>");
-        return xml.toString();
+        return xml.toString().replaceAll("[^\\x20-\\x7e]", "").trim();
     }
 
     private String buildItemAssemblyQuery() {
-        return "<?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><ItemInventoryAssemblyQueryRq requestID=\"1\"></ItemInventoryAssemblyQueryRq></QBXMLMsgsRq></QBXML>";
+        String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+                "<?qbxml version=\"16.0\"?>" +
+                "<QBXML>" +
+                "<QBXMLMsgsRq onError=\"stopOnError\">" +
+                "<ItemQueryRq requestID=\"1\" metaData=\"NoMetaData\">" +
+                "<ItemTypeFilter>" +
+                "<ItemTypeList>ItemAssembly</ItemTypeList>" +
+                "</ItemTypeFilter>" +
+                "</ItemQueryRq>" +
+                "</QBXMLMsgsRq>" +
+                "</QBXML>";
+        return xml.replaceAll("[^\\x20-\\x7e]", "").trim();
     }
 
     private String buildCustomerQuery() {
-        return "<?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><CustomerQueryRq requestID=\"2\"></CustomerQueryRq></QBXMLMsgsRq></QBXML>";
+        String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+                "<?qbxml version=\"16.0\"?>" +
+                "<QBXML>" +
+                "<QBXMLMsgsRq onError=\"stopOnError\">" +
+                "<CustomerQueryRq requestID=\"2\" metaData=\"NoMetaData\">" +
+                "</CustomerQueryRq>" +
+                "</QBXMLMsgsRq>" +
+                "</QBXML>";
+        return xml.replaceAll("[^\\x20-\\x7e]", "").trim();
     }
 
     private void parseAndSaveAssembly(Element item) {
@@ -165,6 +195,8 @@ public class QBXMLProcessor {
     public boolean hasMoreQueries() {
         return queryStep.get() < 3;
     }
+
+
 
     public void resetQueryStep() {
         queryStep.set(0);

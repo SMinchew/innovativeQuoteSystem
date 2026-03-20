@@ -30,9 +30,12 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
+        System.out.println("AUTH HEADER: " + authHeader);
+        System.out.println("REQUEST URL: " + request.getRequestURI());
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
+            System.out.println("TOKEN VALID: " + jwtUtil.validateToken(token));
             if (jwtUtil.validateToken(token)) {
                 String username = jwtUtil.extractUsername(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);

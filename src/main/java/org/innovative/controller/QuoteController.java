@@ -102,10 +102,10 @@ public class QuoteController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<Quote> updateStatus(@PathVariable UUID id, @RequestBody QuoteStatus status) {
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Quote> updateStatus(@PathVariable UUID id, @RequestParam String status) {
         return quoteRepository.findById(id).map(quote -> {
-            quote.setStatus(status);
+            quote.setStatus(QuoteStatus.valueOf(status));
             return ResponseEntity.ok(quoteRepository.save(quote));
         }).orElse(ResponseEntity.notFound().build());
     }

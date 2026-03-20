@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 
+
 function Dashboard() {
     const navigate = useNavigate();
     const [quotes, setQuotes] = useState([]);
@@ -39,9 +40,7 @@ function Dashboard() {
     const sendToQuickBooks = async (id) => {
         setActionLoading(id);
         try {
-            await api.patch(`/api/quotes/${id}/status`, "PENDING_QB", {
-                headers: { 'Content-Type': 'application/json' }
-            });
+            await api.put(`/api/quotes/${id}/status?status=PENDING_QB`);
             fetchQuotes();
         } catch (err) {
             alert("Failed to send to QuickBooks.");
