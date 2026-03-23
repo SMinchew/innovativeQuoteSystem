@@ -34,18 +34,23 @@ function QuoteView() {
         setLoading(false);
     };
 
-    const downloadPdf = () => {
-        fetch(`https://localhost:8443/api/quotes/${id}/pdf`, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-            .then(res => res.blob())
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `quote-${id}.pdf`;
-                a.click();
+    const downloadPdf = async () => {
+        try {
+            const response = await api.get(`/api/quotes/${id}/pdf`, {
+                responseType: 'blob'
             });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `quote-${id}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('PDF error:', err);
+            alert('Failed to download PDF');
+        }
     };
 
 

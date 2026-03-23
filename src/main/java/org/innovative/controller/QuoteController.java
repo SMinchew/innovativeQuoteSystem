@@ -34,7 +34,7 @@ public class QuoteController {
             String name = (quote.getCustomer() != null) ? quote.getCustomer().getName() : "Unknown";
             int lines = (quote.getLines() != null) ? quote.getLines().size() : 0;
 
-            // 1. UUID, 2. String, 3. QuoteStatus, 4. LocalDateTime, 5. int
+
             return new QuoteSummary(
                     quote.getId(),
                     name,
@@ -44,6 +44,25 @@ public class QuoteController {
             );
         }).toList();
         return ResponseEntity.ok(summaries);
+    }
+
+    @Autowired
+    private org.innovative.pdf.QuotePdfService quotePdfService;
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<?> downloadPdf(@PathVariable UUID id) {
+        return quoteRepository.findById(id).map(quote -> {
+            try {
+                byte[] pdf = quotePdfService.generateQuotePdf(quote);
+                return ResponseEntity.ok()
+                        .header("Content-Type", "application/pdf")
+                        .header("Content-Disposition", "attachment; filename=quote-" + id + ".pdf")
+                        .body(pdf);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.internalServerError().build();
+            }
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -56,24 +75,24 @@ public class QuoteController {
     @PostMapping("/{id}/lines")
     public ResponseEntity<Quote> addLine(@PathVariable UUID id, @RequestBody QuoteLine line) {
         return quoteRepository.findById(id).map(quote -> {
-            // 1. Find the Trailer Model (Assembly)
+
             Assembly assembly = assemblyRepository.findById(line.getAssembly().getId())
                     .orElseThrow(() -> new RuntimeException("Model not found"));
 
-            // 2. Map the relationship properly
+
             line.setQuote(quote);
             line.setAssembly(assembly);
             line.setUnitPrice(assembly.getDefaultPrice());
 
-            // 3. Simple math (Ensure lineTotal field exists in your QuoteLine model)
+
             if (assembly.getDefaultPrice() != null) {
                 line.setLineTotal(assembly.getDefaultPrice().multiply(new BigDecimal(line.getQuantity())));
             }
 
-            // 4. Save the line first
+
             quoteLineRepository.save(line);
 
-            // 5. Return the updated quote
+
             return ResponseEntity.ok(quoteRepository.findById(id).get());
         }).orElse(ResponseEntity.notFound().build());
     }

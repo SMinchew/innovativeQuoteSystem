@@ -11,6 +11,14 @@ function Dashboard() {
 
     useEffect(() => {
         fetchQuotes();
+
+        // Auto-refresh every 30 seconds
+        const interval = setInterval(() => {
+            fetchQuotes();
+        }, 30000);
+
+        // Cleanup on unmount
+        return () => clearInterval(interval);
     }, []);
 
     const fetchQuotes = async () => {
