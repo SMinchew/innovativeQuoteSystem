@@ -65,7 +65,7 @@ public class QBXMLProcessor {
             Document doc = builder.parse(new InputSource(new StringReader(xmlResponse)));
 
             // 1. Assemblies
-            NodeList assemblyItems = doc.getElementsByTagName("ItemRet");
+            NodeList assemblyItems = doc.getElementsByTagName("ItemInventoryAssemblyRet");
             System.out.println("Found assembly items: " + assemblyItems.getLength());
             for (int i = 0; i < assemblyItems.getLength(); i++) {
                 parseAndSaveAssembly((Element) assemblyItems.item(i));
@@ -137,13 +137,11 @@ public class QBXMLProcessor {
                 "<?qbxml version=\"16.0\"?>" +
                 "<QBXML>" +
                 "<QBXMLMsgsRq onError=\"stopOnError\">" +
-                "<ItemQueryRq requestID=\"1\" metaData=\"NoMetaData\">" +
-                "<ItemTypeFilter>" +
-                "<ItemTypeList>ItemAssembly</ItemTypeList>" +
-                "</ItemTypeFilter>" +
-                "</ItemQueryRq>" +
+                "<ItemInventoryAssemblyQueryRq requestID=\"1\" metaData=\"NoMetaData\">" +
+                "</ItemInventoryAssemblyQueryRq>" +
                 "</QBXMLMsgsRq>" +
                 "</QBXML>";
+        System.out.println("ASSEMBLY QUERY XML: " + xml);
         return xml.replaceAll("[^\\x20-\\x7e]", "").trim();
     }
 

@@ -27,20 +27,24 @@ public class QuoteController {
     @Autowired
     private CustomerRepository customerRepository;
 
+
+
     @GetMapping
     public ResponseEntity<List<QuoteSummary>> getAll() {
         List<Quote> quotes = quoteRepository.findAll();
         List<QuoteSummary> summaries = quotes.stream().map(quote -> {
             String name = (quote.getCustomer() != null) ? quote.getCustomer().getName() : "Unknown";
             int lines = (quote.getLines() != null) ? quote.getLines().size() : 0;
-
-
+            BigDecimal total = (quote.getLines() != null) ? quote.getLines().stream()
+                    .map(line -> line.getLineTotal() != null ? line.getLineTotal() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add) : BigDecimal.ZERO;
             return new QuoteSummary(
                     quote.getId(),
                     name,
                     quote.getStatus(),
                     quote.getCreatedAt(),
-                    lines
+                    lines,
+                    total
             );
         }).toList();
         return ResponseEntity.ok(summaries);

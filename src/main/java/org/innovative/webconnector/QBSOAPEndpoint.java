@@ -106,6 +106,30 @@ public class QBSOAPEndpoint {
         response.appendChild(result);
         return response;
     }
+    @PayloadRoot(namespace = NAMESPACE, localPart = "serverVersion")
+    @ResponsePayload
+    public Element serverVersion(@RequestPayload Element request) throws Exception {
+        Document doc = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder().newDocument();
+        Element response = doc.createElementNS(NAMESPACE, "serverVersionResponse");
+        Element result = doc.createElementNS(NAMESPACE, "serverVersionResult");
+        result.setTextContent("1.0");
+        response.appendChild(result);
+        return response;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "clientVersion")
+    @ResponsePayload
+    public Element clientVersion(@RequestPayload Element request) throws Exception {
+        Document doc = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder().newDocument();
+        Element response = doc.createElementNS(NAMESPACE, "clientVersionResponse");
+        Element result = doc.createElementNS(NAMESPACE, "clientVersionResult");
+        // Empty string = version accepted. Return "W:<msg>" for a warning, "E:<msg>" to reject.
+        result.setTextContent("");
+        response.appendChild(result);
+        return response;
+    }
 
     @PayloadRoot(namespace = NAMESPACE, localPart = "getLastError")
     @ResponsePayload

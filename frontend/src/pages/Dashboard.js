@@ -128,6 +128,7 @@ function Dashboard() {
                                 <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Customer</th>
                                 <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Created On</th>
                                 <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Created By</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Total</th>
                                 <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Status</th>
                                 <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-right">Actions</th>
                             </tr>
@@ -147,6 +148,11 @@ function Dashboard() {
                                         <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded">
                                             {quote.createdBy || 'System'}
                                         </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <p className="text-sm font-bold text-green-600">
+                                            ${quote.total ? Number(quote.total).toFixed(2) : '0.00'}
+                                        </p>
                                     </td>
                                     <td className="px-6 py-4">
                                         {getStatusBadge(quote.status)}

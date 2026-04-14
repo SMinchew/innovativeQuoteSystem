@@ -94,7 +94,9 @@ function QuoteBuilder() {
 
     const createQuote = async (customerId) => {
         try {
-            const response = await api.post('/api/quotes', { customerId });
+            const response = await api.post('/api/quotes', {
+                customer: { id: customerId }
+            });
             return response.data;
         } catch (err) { setError('Failed to create quote'); return null; }
     };
@@ -144,12 +146,14 @@ function QuoteBuilder() {
         return applySurcharge ? subtotal * 1.12 : subtotal;
     };
 
-    const saveQuote = async () => {
-        if (!quote || !selectedCustomer) return;
-        try {
-            await api.patch(`/api/quotes/${quote.id}/status`, "SENT", { headers: { 'Content-Type': 'application/json' } });
-            navigate('/dashboard');
-        } catch (err) { setError('Failed to save quote'); }
+    const saveQuote = () => {
+        console.log('quote:', quote);
+        console.log('selectedCustomer:', selectedCustomer);
+        if (!quote || !selectedCustomer) {
+            setError('Missing quote or customer - quote: ' + JSON.stringify(quote) + ' customer: ' + selectedCustomer);
+            return;
+        }
+        navigate('/dashboard');
     };
 
     const assemblyOptions = filteredAssemblies.map(a => ({
