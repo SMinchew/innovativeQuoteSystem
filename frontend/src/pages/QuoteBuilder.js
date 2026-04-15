@@ -38,7 +38,6 @@ function QuoteBuilder() {
     const [filteredAssemblies, setFilteredAssemblies] = useState([]);
     const [selectedModel, setSelectedModel] = useState(null);
     const [quoteLines, setQuoteLines] = useState([]);
-    const [quote, setQuote] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [customers, setCustomers] = useState([]);
@@ -92,49 +91,29 @@ function QuoteBuilder() {
         } catch (err) { setError('Failed to load assemblies'); }
     };
 
-    const createQuote = async (customerId) => {
-        try {
-            const response = await api.post('/api/quotes', {
-                customer: { id: customerId }
-            });
-            return response.data;
-        } catch (err) { setError('Failed to create quote'); return null; }
-    };
+
 
     const addToQuote = async (assembly) => {
         if (!selectedCustomer) {
             setError('Please select a customer before adding items');
             return;
         }
-        setLoading(true);
-        try {
-            let currentQuote = quote || await createQuote(selectedCustomer);
-            if (!currentQuote) return;
-            setQuote(currentQuote);
-
-            await api.post(`/api/quotes/${currentQuote.id}/lines`, {
-                assembly: { id: assembly.id },
-                quantity: 1
-            });
-
-            const existing = quoteLines.find(l => l.assembly.id === assembly.id);
-            if (existing) {
-                setQuoteLines(quoteLines.map(l =>
-                    l.assembly.id === assembly.id
-                        ? { ...l, quantity: l.quantity + 1, lineTotal: l.unitPrice * (l.quantity + 1) }
-                        : l
-                ));
-            } else {
-                setQuoteLines([...quoteLines, {
-                    assembly,
-                    quantity: 1,
-                    unitPrice: assembly.defaultPrice,
-                    lineTotal: assembly.defaultPrice
-                }]);
-            }
-            setError('');
-        } catch (err) { setError('Failed to add item'); }
-        setLoading(false);
+        const existing = quoteLines.find(l => l.assembly.id === assembly.id);
+        if (existing) {
+            setQuoteLines(quoteLines.map(l =>
+                l.assembly.id === assembly.id
+                    ? { ...l, quantity: l.quantity + 1, lineTotal: l.unitPrice * (l.quantity + 1) }
+                    : l
+            ));
+        } else {
+            setQuoteLines([...quoteLines, {
+                assembly,
+                quantity: 1,
+                unitPrice: assembly.defaultPrice,
+                lineTotal: assembly.defaultPrice
+            }]);
+        }
+        setError('');
     };
 
     const removeLine = (assemblyId) => {
@@ -146,14 +125,29 @@ function QuoteBuilder() {
         return applySurcharge ? subtotal * 1.12 : subtotal;
     };
 
-    const saveQuote = () => {
-        console.log('quote:', quote);
-        console.log('selectedCustomer:', selectedCustomer);
-        if (!quote || !selectedCustomer) {
-            setError('Missing quote or customer - quote: ' + JSON.stringify(quote) + ' customer: ' + selectedCustomer);
-            return;
+    const saveQuote = async () => {
+        if (quoteLines.length === 0 || !selectedCustomer) return;
+        setLoading(true);
+        try {
+            // Create the quote
+            const response = await api.post('/api/quotes', {
+                customer: { id: selectedCustomer }
+            });
+            const newQuote = response.data;
+
+            // Add all lines
+            for (const line of quoteLines) {
+                await api.post(`/api/quotes/${newQuote.id}/lines`, {
+                    assembly: { id: line.assembly.id },
+                    quantity: line.quantity
+                });
+            }
+
+            navigate('/dashboard');
+        } catch (err) {
+            setError('Failed to save quote');
         }
-        navigate('/dashboard');
+        setLoading(false);
     };
 
     const assemblyOptions = filteredAssemblies.map(a => ({
