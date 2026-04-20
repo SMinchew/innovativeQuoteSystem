@@ -16,11 +16,11 @@ public class QuoteLine {
 
     @ManyToOne
     @JoinColumn(name = "quote_id")
-    @JsonIgnoreProperties("lines") // This stops the loop!
+    @JsonIgnoreProperties("lines")
     private Quote quote;
 
     @ManyToOne
-    @JoinColumn(name = "assembly_id") // Fixes the red error on your line 23
+    @JoinColumn(name = "assembly_id")
     private Assembly assembly;
 
     private int quantity;

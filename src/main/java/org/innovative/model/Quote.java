@@ -19,7 +19,7 @@ public class Quote {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // MATCHES YOUR SCREENSHOT: created_by_user_id
+
     @Column(name = "created_by_user_id")
     private UUID createdByUserId;
 

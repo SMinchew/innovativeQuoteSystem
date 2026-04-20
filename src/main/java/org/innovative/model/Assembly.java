@@ -29,32 +29,32 @@ public class Assembly {
     @Setter
     @Getter
     @Column(columnDefinition = "TEXT")
-    private String description; // Maps to "Description" (Sales)
+    private String description;
 
     @Column(columnDefinition = "TEXT")
-    private String purchaseDescription; // Maps to "Purchase Description"
+    private String purchaseDescription;
 
     @Setter
     @Getter
-    private BigDecimal cost; // Maps to "Cost"
+    private BigDecimal cost;
 
     @Setter
     @Getter
-    private BigDecimal defaultPrice; // Maps to "Price"
+    private BigDecimal defaultPrice;
 
     @Getter
     @Setter
-    private String mpn; // Maps to "MPN"
+    private String mpn;
 
-    private String itemType; // Maps to "Type"
+    private String itemType;
 
-    private String preferredVendor; // Maps to "Preferred Vendor"
+    private String preferredVendor;
 
-    private Double quantityOnHand; // Maps to "Quantity On Hand"
+    private Double quantityOnHand;
 
-    private String assetAccount; // Maps to "Asset Account"
+    private String assetAccount;
 
-    private boolean active; // Maps to "Status"
+    private boolean active;
 
     @OneToMany(mappedBy = "assembly", cascade = CascadeType.ALL)
     private List<AssemblyComponent> components;
