@@ -25,7 +25,7 @@ public class QuoteController {
     private QuoteLineRepository quoteLineRepository;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private UserRepository userRepository;
 
 
 
@@ -36,16 +36,15 @@ public class QuoteController {
             String name = (quote.getCustomer() != null) ? quote.getCustomer().getName() : "Unknown";
             int lines = (quote.getLines() != null) ? quote.getLines().size() : 0;
             BigDecimal total = (quote.getLines() != null) ? quote.getLines().stream()
-                    .map(line -> line.getLineTotal() != null ? line.getLineTotal() : BigDecimal.ZERO)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add) : BigDecimal.ZERO;
-            return new QuoteSummary(
-                    quote.getId(),
-                    name,
-                    quote.getStatus(),
-                    quote.getCreatedAt(),
-                    lines,
-                    total
-            );
+                                                            .map(line -> line.getLineTotal() != null ? line.getLineTotal() : BigDecimal.ZERO)
+                                                            .reduce(BigDecimal.ZERO, BigDecimal::add) : BigDecimal.ZERO;
+            String createdBy = "Unknown";
+            if (quote.getCreatedByUserId() != null) {
+                createdBy = userRepository.findById(quote.getCreatedByUserId())
+                        .map(user -> user.getUsername())
+                        .orElse("Unknown");
+            }
+            return new QuoteSummary(quote.getId(), name, quote.getStatus(), quote.getCreatedAt(), lines, total, createdBy);
         }).toList();
         return ResponseEntity.ok(summaries);
     }
@@ -70,9 +69,14 @@ public class QuoteController {
     }
 
     @PostMapping
-    public Quote create(@RequestBody Quote quote) {
+    public Quote create(@RequestBody Quote quote, java.security.Principal principal) {
         quote.setStatus(QuoteStatus.DRAFT);
         quote.setCreatedAt(LocalDateTime.now());
+        if (principal != null) {
+            userRepository.findByUsername(principal.getName()).ifPresent(user -> {
+                quote.setCreatedByUserId(user.getId());
+            });
+        }
         return quoteRepository.save(quote);
     }
 

@@ -11,23 +11,23 @@ public class QuoteSummary {
     private LocalDateTime createdAt;
     private int lineCount;
     private BigDecimal total;
+    private String createdBy;
 
-
-    public QuoteSummary(UUID id, String customerName, QuoteStatus status, LocalDateTime createdAt, int lineCount, BigDecimal total) {
+    public QuoteSummary(UUID id, String customerName, QuoteStatus status, LocalDateTime createdAt, int lineCount, BigDecimal total, String createdBy) {
         this.id = id;
         this.customerName = customerName;
         this.status = status;
         this.createdAt = createdAt;
         this.lineCount = lineCount;
         this.total = total;
+        this.createdBy = createdBy;
     }
-
 
     public UUID getId() { return id; }
     public String getCustomerName() { return customerName; }
     public QuoteStatus getStatus() { return status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public int getLineCount() { return lineCount; }
-
     public BigDecimal getTotal() { return total; }
+    public String getCreatedBy() { return createdBy; }
 }
