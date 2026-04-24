@@ -9,6 +9,7 @@ const TRAILER_MODELS = [
     { value: 'IWS', label: 'IWS' },
     { value: 'SDS', label: 'SDS' },
     { value: 'SFS', label: 'SFS' },
+    { value: 'SRS', label: 'SRS' },
     { value: 'TRASH', label: 'TRASH' },
 ];
 
@@ -49,18 +50,15 @@ function QuoteBuilder() {
         fetchCustomers();
     }, []);
 
-    // Filter assemblies whenever the selected model changes
-// Filter assemblies based on the exact prefix of the Part Number
+
     useEffect(() => {
         if (!selectedModel) {
-            // If no trailer model is selected, show an empty list
-            // This keeps the UI clean until they pick SDS, DCS, etc.
+
             setFilteredAssemblies([]);
         } else {
             const filtered = assemblies.filter(a => {
                 const itemName = a.name || "";
-                // This checks if the QuickBooks Item Name starts with DCS, SDS, etc.
-                // .toUpperCase() ensures it's not case-sensitive
+
                 return itemName.toUpperCase().startsWith(selectedModel.value.toUpperCase());
             });
             setFilteredAssemblies(filtered);
@@ -129,13 +127,13 @@ function QuoteBuilder() {
         if (quoteLines.length === 0 || !selectedCustomer) return;
         setLoading(true);
         try {
-            // Create the quote
+
             const response = await api.post('/api/quotes', {
                 customer: { id: selectedCustomer }
             });
             const newQuote = response.data;
 
-            // Add all lines
+
             for (const line of quoteLines) {
                 await api.post(`/api/quotes/${newQuote.id}/lines`, {
                     assembly: { id: line.assembly.id },
