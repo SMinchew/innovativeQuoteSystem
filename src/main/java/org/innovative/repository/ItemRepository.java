@@ -7,6 +7,6 @@ import java.util.UUID;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, UUID> {
-    // Spring Data JPA auto-generates all basic DB operations
-    Item findByQbListId(String qbListId); // useful for upserts during sync
+
+    Item findByQbListId(String qbListId);
 }
